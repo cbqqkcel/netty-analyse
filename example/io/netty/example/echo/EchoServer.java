@@ -16,7 +16,10 @@
 package io.netty.example.echo;
 
 import io.netty.bootstrap.ServerBootstrap;
+import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInboundByteHandlerAdapter;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
@@ -29,51 +32,63 @@ import io.netty.handler.logging.LoggingHandler;
 /**
  * Echoes back any received data from a client.
  */
-public class EchoServer {
-    private final int port;
+public class EchoServer extends ChannelInboundByteHandlerAdapter {
+	private final int port = 8080;
 
-    public EchoServer(int port) {
-        this.port = port;
-    }
+	public void run() throws Exception {
+		// Configure the server.
+		EventLoopGroup bossGroup = new NioEventLoopGroup();
+		EventLoopGroup workerGroup = new NioEventLoopGroup();
+		try {
+			ServerBootstrap b = new ServerBootstrap();
+			b.group(bossGroup, workerGroup)
+					.channel(NioServerSocketChannel.class)
+					.option(ChannelOption.SO_BACKLOG, 100)
+					.handler(new LoggingHandler(LogLevel.INFO))
+					.childHandler(new ChannelInitializer<SocketChannel>() {
+						public void initChannel(SocketChannel ch) throws Exception {
+							ch.pipeline().addLast(new EchoServer());
+						}
+					});
 
-    public void run() throws Exception {
-        // Configure the server.
-        EventLoopGroup bossGroup = new NioEventLoopGroup();
-        EventLoopGroup workerGroup = new NioEventLoopGroup();
-        try {
-            ServerBootstrap b = new ServerBootstrap();
-            b.group(bossGroup, workerGroup)
-             .channel(NioServerSocketChannel.class)
-             .option(ChannelOption.SO_BACKLOG, 100)
-             .handler(new LoggingHandler(LogLevel.INFO))
-             .childHandler(new ChannelInitializer<SocketChannel>() {
-                 @Override
-                 public void initChannel(SocketChannel ch) throws Exception {
-                     ch.pipeline().addLast(
-                             new LoggingHandler(LogLevel.INFO),
-                             new EchoServerHandler());
-                 }
-             });
+			// Start the server.
+			ChannelFuture f = b.bind(port).sync();
 
-            // Start the server.
-            ChannelFuture f = b.bind(port).sync();
+			// Wait until the server socket is closed.
+			f.channel().closeFuture().sync();
+		} finally {
+			// Shut down all event loops to terminate all threads.
+			bossGroup.shutdownGracefully();
+			workerGroup.shutdownGracefully();
+		}
+	}
 
-            // Wait until the server socket is closed.
-            f.channel().closeFuture().sync();
-        } finally {
-            // Shut down all event loops to terminate all threads.
-            bossGroup.shutdownGracefully();
-            workerGroup.shutdownGracefully();
-        }
-    }
+	public static void main(String[] args) throws Exception {
+		new EchoServer().run();
+	}
 
-    public static void main(String[] args) throws Exception {
-        int port;
-        if (args.length > 0) {
-            port = Integer.parseInt(args[0]);
-        } else {
-            port = 8080;
-        }
-        new EchoServer(port).run();
-    }
+	@Override
+	public void channelRegistered(ChannelHandlerContext ctx) throws Exception {
+		System.out.println(ctx);
+	};
+
+	@Override
+	public void channelActive(ChannelHandlerContext ctx) throws Exception {
+		System.out.println(ctx);
+	}
+
+	@Override
+	public void inboundBufferUpdated(ChannelHandlerContext ctx, ByteBuf in) {
+		System.out.println(in);
+		ctx.close();
+		// ByteBuf out = ctx.nextOutboundByteBuffer();
+		// out.writeBytes(in);
+		// ctx.flush();
+	}
+
+	@Override
+	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
+		// Close the connection when an exception is raised.
+		ctx.close();
+	}
 }

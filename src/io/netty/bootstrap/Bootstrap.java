@@ -129,7 +129,7 @@ public final class Bootstrap extends AbstractBootstrap<Bootstrap, Channel> {
     /**
      * @see {@link #connect()}
      */
-    private ChannelFuture doConnect(final SocketAddress remoteAddress, final SocketAddress localAddress) {
+    private  ChannelFuture doConnect(final SocketAddress remoteAddress, final SocketAddress localAddress) {
         final ChannelFuture regFuture = initAndRegister();
         final Channel channel = regFuture.channel();
         if (regFuture.cause() != null) {

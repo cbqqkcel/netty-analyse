@@ -44,11 +44,8 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public abstract class SingleThreadEventExecutor extends AbstractEventExecutor {
 
-    private static final InternalLogger logger =
-            InternalLoggerFactory.getInstance(SingleThreadEventExecutor.class);
-
-    static final ThreadLocal<SingleThreadEventExecutor> CURRENT_EVENT_LOOP =
-            new ThreadLocal<SingleThreadEventExecutor>();
+    private static final InternalLogger logger = InternalLoggerFactory.getInstance(SingleThreadEventExecutor.class);
+    static final ThreadLocal<SingleThreadEventExecutor> CURRENT_EVENT_LOOP = new ThreadLocal<SingleThreadEventExecutor>();
 
     private static final int ST_NOT_STARTED = 1;
     private static final int ST_STARTED = 2;
@@ -94,8 +91,7 @@ public abstract class SingleThreadEventExecutor extends AbstractEventExecutor {
      * @param addTaskWakesUp    {@code true} if and only if invocation of {@link #addTask(Runnable)} will wake up the
      *                          executor thread
      */
-    protected SingleThreadEventExecutor(
-            EventExecutorGroup parent, ThreadFactory threadFactory, boolean addTaskWakesUp) {
+    protected SingleThreadEventExecutor(EventExecutorGroup parent, ThreadFactory threadFactory, boolean addTaskWakesUp) {
 
         if (threadFactory == null) {
             throw new NullPointerException("threadFactory");
@@ -821,9 +817,7 @@ public abstract class SingleThreadEventExecutor extends AbstractEventExecutor {
         synchronized (stateLock) {
             if (state == ST_NOT_STARTED) {
                 state = ST_STARTED;
-                delayedTaskQueue.add(new ScheduledFutureTask<Void>(
-                        this, Executors.<Void>callable(new PurgeTask(), null),
-                        deadlineNanos(SCHEDULE_PURGE_INTERVAL), -SCHEDULE_PURGE_INTERVAL));
+                delayedTaskQueue.add(new ScheduledFutureTask<Void>(this, Executors.<Void>callable(new PurgeTask(), null), deadlineNanos(SCHEDULE_PURGE_INTERVAL), -SCHEDULE_PURGE_INTERVAL));
                 thread.start();
             }
         }

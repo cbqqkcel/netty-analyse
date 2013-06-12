@@ -1,0 +1,199 @@
+先由一个例子引入什么是Future Pattern。
+
+【例子】我去蛋糕店取蛋糕，下订单后，店员请我"请在天黑后再来店里取货"，并给我一张提货单。在店员做蛋糕的时候，我可以陪MM逛街，看电影等，而不需要在蛋糕店外等候。黄昏后，我拿着这张提货单到蛋糕店来取货。店员说了声"先生，你的蛋糕好了"，并把蛋糕给了我。
+
+ 
+
+上面的例子就是Future Pattern的一个直观的使用例子。
+
+假设有一个执行起来要花很久的方法(如做蛋糕)，我们不需要等待结果完全出来了(蛋糕做好)，而是获取一张替代的"提货单"。获取提货单不需要太长的时间，这个提货单就是Future参与者。
+获取Future参与者的线程，会在事后再去执行结果，就好像拿着提货单取蛋糕一样。如果已经有执行结果了，就马上拿到数据。如果还没有，则继续等待到执行结果完全出来为止。
+上面就是一此完整的Future Pattern的运行模式。
+
+ 
+
+下面提供一段范例程序。
+
+首先介绍一下范例程序包含的一些类和接口：
+
+Main              说明：对Host送出请求，获取数据的类。
+Host              说明：对请求返回FutureData的类。
+Data              说明：表达数据访问方式的接口，FurureData与RealData都实现了这个接口。
+FurureData    说明：RealData的提货单类，而RealData实例则有其他线程建立。
+RealData        说明：表达实际数据的类，执行构造器要花一定的时间。
+[java] view plaincopy
+//Main类的代码  
+package com.pattern.thread.future;  
+  
+public class Main {  
+    public static void main(String[] args) {  
+        System.out.println("main BEGIN");  
+        Host host = new Host();  
+        Data data1 = host.request(10, 'A');  
+        Data data2 = host.request(20, 'B');  
+        Data data3 = host.request(30, 'C');  
+  
+        System.out.println("main otherJob BEGIN");  
+        try {  
+            Thread.sleep(2000);  
+        } catch (InterruptedException e) {  
+        }  
+        System.out.println("main otherJob END");  
+  
+        System.out.println("data1 = " + data1.getContent());  
+        System.out.println("data2 = " + data2.getContent());  
+        System.out.println("data3 = " + data3.getContent());  
+        System.out.println("main END");  
+    }  
+}  
+//Host 类的代码  
+package com.pattern.thread.future;  
+  
+public class Host {  
+    public Data request(final int count, final char c) {  
+        System.out.println("    request(" + count + ", " + c + ") BEGIN");  
+  
+        // (1)建立FutureData的实例  
+        final FutureData future = new FutureData();  
+  
+        // (2)为了建立RealData的实例，启用新的线程  
+        new Thread() {                                        
+            public void run() {                               
+                RealData realdata = new RealData(count, c);  
+                future.setRealData(realdata);  
+            }                                                 
+        }.start();                                            
+  
+        System.out.println("    request(" + count + ", " + c + ") END");  
+  
+        // (3)取回FutureData实例，作为返回值  
+        return future;  
+    }  
+}  
+  
+//Data接口  
+package com.pattern.thread.future;  
+  
+public interface Data {  
+    public abstract String getContent();  
+}  
+  
+//FutureData类  
+package com.pattern.thread.future;  
+  
+public class FutureData implements Data {  
+    private RealData realdata = null;  
+    private boolean ready = false;  
+    public synchronized void setRealData(RealData realdata) {  
+        if (ready) {                          
+            return;     // balk  
+        }  
+        this.realdata = realdata;  
+        this.ready = true;  
+        notifyAll();  
+    }  
+    public synchronized String getContent() {  
+        while (!ready) {  
+            try {  
+                wait();  
+            } catch (InterruptedException e) {  
+            }  
+        }  
+        return realdata.getContent();  
+    }  
+}  
+  
+//RealData类  
+package com.pattern.thread.future;  
+  
+public class RealData implements Data {  
+    private final String content;  
+    public RealData(int count, char c) {  
+        System.out.println("        making RealData(" + count + ", " + c + ") BEGIN");  
+        char[] buffer = new char[count];  
+        for (int i = 0; i < count; i++) {  
+            buffer[i] = c;  
+            try {  
+                Thread.sleep(100);  
+            } catch (InterruptedException e) {  
+            }  
+        }  
+        System.out.println("        making RealData(" + count + ", " + c + ") END");  
+        this.content = new String(buffer);  
+    }  
+    public String getContent() {  
+        return content;  
+    }  
+}  
+
+
+运行结果如下：
+
+[java] view plaincopy
+main BEGIN  
+    request(10, A) BEGIN  
+    request(10, A) END  
+    request(20, B) BEGIN  
+    request(20, B) END  
+    request(30, C) BEGIN  
+    request(30, C) END  
+main otherJob BEGIN  
+        making RealData(30, C) BEGIN  
+        making RealData(10, A) BEGIN  
+        making RealData(20, B) BEGIN  
+        making RealData(10, A) END  
+main otherJob END  
+data1 = AAAAAAAAAA  
+        making RealData(20, B) END  
+data2 = BBBBBBBBBBBBBBBBBBBB  
+        making RealData(30, C) END  
+data3 = CCCCCCCCCCCCCCCCCCCCCCCCCCCCCC  
+main END  
+
+ 
+
+对结果的分析:
+
+可以看到最开始Main线程开始后，三个请求线程，开始后马上就结束了。这一过程就好像有三个人去蛋糕店订蛋糕，立刻就拿到了提货单。这一过程体现在输出结果的1到7行。
+
+ 
+
+这之后，三个人分别忙自己的事情去了，假设时间刚好为一下午(反映在程序中就是Main线程sleep的那2000毫秒)，这期间蛋糕店的师傅也没闲着，加紧做蛋糕，最先做谁的蛋糕也完全随机，结果反映就是先做C，在A，最后是B。也就是输出结果的8到14行。
+
+ 
+
+三个玩够了，肚子饿了。想起来蛋糕店还有蛋糕呢，于是去取蛋糕。这个时候蛋糕已经做完了，三个人顺利取走蛋糕回家。也就是结果的最后15到19行。
+
+ 
+
+从程序来看，Future Pattern有几个必要的参与者。
+
+Client(委托人)参与者，反映在程序中就是想Host发送请求的参与者，并得到VirtualData参与者，作为这个请求的结果(返回值)，在实例程序中就是Main类。
+Host(处理人)参与者，建立新的线程，开始建立RealData参与者，另一方面会对Client参与者，以(VirtualData参与者的形式)返回Future参与者。新的线程建立出来RealData后，会对Future参与者设置RealData参与者。示例Host就是Host。
+VirtualData(虚拟数据)参与者，用来统一代表Future参与者和RealData参与者。在示例中就是Data接口。
+RealData(实际数据)参与者，表示实际的数据，建立需要花一些时间，示例中RealData就是RealData。
+Future(期货)参与者，Future是Host参与者传递给Client参与者，当做是RealData参与者"提货单"使用的参与者。Future参与者相对于Client参与者而言，可以进行VirtualData参与者的行为。
+扩展思考:
+
+
+1.吞吐量由提高吗？
+
+对于我们的程序，对于单CPU的系统，CPU处理的总时间是一样的，因为计算机宏观并行，微观串行所决定。然而，如果加上I/O处理，如对硬盘的访问，大部分时间CPU只是等待工作结束而已，对于CPU，这部分时间是空闲时间，若能把空闲时间给其他的线程使用，那么相当于也提高了计算机的吞吐量。
+
+2.响应性的提高？
+
+对于此种模式，你不必等待某个工作的完成，你可以串行的干一些其他的工作。
+
+3.实现异步？
+
+使用此模式，通过"稍后在设置真正的处理结果"，做到异步方法调用的返回值。
+
+4.分离"准备返回值"和"使用返回值"
+
+建立RealData的操作就是"准备方法的返回值"，而调用getContent方法则是为了"使用方法的返回值"。如此，将调用方法的一系列动作，像慢动作播放一样逐一拆解，就可以把多线程当做道具来使用了。
+
+ 
+
+Future设计模式是很有意思的一个模式，今天学习时很是喜欢，摘录一些段落加上自己的理解记录下来，与大家分享。
+
+大部分摘自《Java多线程设计模式详解》一书。

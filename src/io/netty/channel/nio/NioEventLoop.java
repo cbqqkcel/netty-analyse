@@ -578,9 +578,7 @@ public final class NioEventLoop extends SingleThreadEventLoop {
                         selectCnt >= SELECTOR_AUTO_REBUILD_THRESHOLD) {
                     // The selector returned prematurely many times in a row.
                     // Rebuild the selector to work around the problem.
-                    logger.warn(
-                            "Selector.select() returned prematurely {} times in a row; rebuilding selector.",
-                            selectCnt);
+                    logger.warn("Selector.select() returned prematurely {} times in a row; rebuilding selector.", selectCnt);
 
                     rebuildSelector();
 

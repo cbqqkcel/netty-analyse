@@ -33,10 +33,23 @@ public class EchoServerHandler extends ChannelInboundByteHandlerAdapter {
             EchoServerHandler.class.getName());
 
     @Override
+    public void channelRegistered(ChannelHandlerContext ctx) throws Exception {
+    	System.out.println(ctx);
+    };
+    
+    
+    
+    @Override
+	public void channelActive(ChannelHandlerContext ctx) throws Exception {
+    	System.out.println(ctx);
+	}
+
+	@Override
     public void inboundBufferUpdated(ChannelHandlerContext ctx, ByteBuf in) {
-        ByteBuf out = ctx.nextOutboundByteBuffer();
-        out.writeBytes(in);
-        ctx.flush();
+		System.out.println(in);
+		// ByteBuf out = ctx.nextOutboundByteBuffer();
+		// out.writeBytes(in);
+		// ctx.flush();
     }
 
     @Override
