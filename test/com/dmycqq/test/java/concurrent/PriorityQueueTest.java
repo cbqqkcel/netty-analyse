@@ -1,4 +1,4 @@
-package com.dmycqq.test.concurrent;
+package com.dmycqq.test.java.concurrent;
 
 import java.util.PriorityQueue;
 

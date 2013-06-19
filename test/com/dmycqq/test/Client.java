@@ -21,7 +21,7 @@ public class Client extends ChannelInboundByteHandlerAdapter {
 	private final ByteBuf buf = Unpooled.wrappedBuffer("Hello".getBytes());
 
 	public static void main(String[] args) throws Exception {
-		EventLoopGroup g = new NioEventLoopGroup();
+		EventLoopGroup g = new NioEventLoopGroup(1);
 		Bootstrap b = new Bootstrap();
 		b.group(g);
 		b.channel(NioSocketChannel.class);

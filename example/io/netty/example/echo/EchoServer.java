@@ -80,12 +80,12 @@ public class EchoServer extends ChannelInboundByteHandlerAdapter {
 	@Override
 	public void inboundBufferUpdated(ChannelHandlerContext ctx, ByteBuf in) {
 		System.out.println(in);
+		ByteBuf out = ctx.nextOutboundByteBuffer();
+		out.writeBytes(in);
+		ctx.flush();
 		ctx.close();
-		// ByteBuf out = ctx.nextOutboundByteBuffer();
-		// out.writeBytes(in);
-		// ctx.flush();
 	}
-
+	
 	@Override
 	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
 		// Close the connection when an exception is raised.

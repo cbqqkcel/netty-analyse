@@ -1,4 +1,4 @@
-package com.dmycqq.test.future;
+package com.dmycqq.test.java.concurrent.future;
 
 public class Host {  
     public Data request(final int count, final char c) {  

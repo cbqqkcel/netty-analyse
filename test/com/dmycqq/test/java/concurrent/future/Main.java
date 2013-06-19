@@ -1,4 +1,4 @@
-package com.dmycqq.test.future;
+package com.dmycqq.test.java.concurrent.future;
 
 public class Main {  
     public static void main(String[] args) {  

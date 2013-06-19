@@ -69,10 +69,12 @@ public abstract class SingleThreadEventExecutor extends AbstractEventExecutor {
 
     private final EventExecutorGroup parent;
     private final Queue<Runnable> taskQueue;
+    //优先级任务调度队列
     final Queue<ScheduledFutureTask<?>> delayedTaskQueue = new PriorityQueue<ScheduledFutureTask<?>>();
 
     private final Thread thread;
     private final Object stateLock = new Object();
+    //信号量，设置为0没搞定什么意思 
     private final Semaphore threadLock = new Semaphore(0);
     private final Set<Runnable> shutdownHooks = new LinkedHashSet<Runnable>();
     private final boolean addTaskWakesUp;

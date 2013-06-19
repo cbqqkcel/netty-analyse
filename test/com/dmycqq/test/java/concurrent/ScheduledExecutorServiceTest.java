@@ -1,4 +1,4 @@
-package com.dmycqq.test.concurrent;
+package com.dmycqq.test.java.concurrent;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;

@@ -1,7 +1,14 @@
 package com.dmycqq.test;
 
-public class Test {
+public class Test implements Runnable {
 	public static void main(String[] args) {
-		System.out.println(1 << 0);
+		Test t = new Test();
+		new Thread(t).start();
+		System.out.println("111");
+	}
+
+	@Override
+	public void run() {
+		System.out.println("启动");
 	}
 }

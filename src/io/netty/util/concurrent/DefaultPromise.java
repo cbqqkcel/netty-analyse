@@ -27,8 +27,7 @@ import static java.util.concurrent.TimeUnit.*;
 
 public class DefaultPromise<V> extends AbstractFuture<V> implements Promise<V> {
 
-    private static final InternalLogger logger =
-        InternalLoggerFactory.getInstance(DefaultPromise.class);
+    private static final InternalLogger logger = InternalLoggerFactory.getInstance(DefaultPromise.class);
 
     private static final int MAX_LISTENER_STACK_DEPTH = 8;
     private static final ThreadLocal<Integer> LISTENER_STACK_DEPTH = new ThreadLocal<Integer>() {
@@ -475,8 +474,7 @@ public class DefaultPromise<V> extends AbstractFuture<V> implements Promise<V> {
                 notifyListeners0(this, (DefaultFutureListeners) listeners);
             } else {
                 @SuppressWarnings("unchecked")
-                final GenericFutureListener<? extends Future<V>> l =
-                        (GenericFutureListener<? extends Future<V>>) listeners;
+                final GenericFutureListener<? extends Future<V>> l = (GenericFutureListener<? extends Future<V>>) listeners;
                 notifyListener0(this, l);
             }
         } else {
@@ -514,8 +512,7 @@ public class DefaultPromise<V> extends AbstractFuture<V> implements Promise<V> {
         }
     }
 
-    protected static void notifyListener(
-            final EventExecutor eventExecutor, final Future<?> future, final GenericFutureListener<?> l) {
+    protected static void notifyListener(final EventExecutor eventExecutor, final Future<?> future, final GenericFutureListener<?> l) {
 
         if (eventExecutor.inEventLoop()) {
             final Integer stackDepth = LISTENER_STACK_DEPTH.get();

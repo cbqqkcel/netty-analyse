@@ -78,6 +78,7 @@ public abstract class AbstractChannel extends DefaultAttributeMap implements Cha
     private final Integer id;
     private final Unsafe unsafe;
     private final DefaultChannelPipeline pipeline;
+    //暂时没看到有啥用途
     private final ChannelFuture succeededFuture = new SucceededChannelFuture(this, null);
     private final VoidChannelPromise voidPromise = new VoidChannelPromise(this);
     private final CloseFuture closeFuture = new CloseFuture(this);

@@ -50,8 +50,7 @@ final class DefaultChannelPipeline implements ChannelPipeline {
     static final InternalLogger logger = InternalLoggerFactory.getInstance(DefaultChannelPipeline.class);
 
     @SuppressWarnings("unchecked")
-    private static final WeakHashMap<Class<?>, String>[] nameCaches =
-            new WeakHashMap[Runtime.getRuntime().availableProcessors()];
+    private static final WeakHashMap<Class<?>, String>[] nameCaches = new WeakHashMap[Runtime.getRuntime().availableProcessors()];
 
     static {
         for (int i = 0; i < nameCaches.length; i ++) {
@@ -64,11 +63,9 @@ final class DefaultChannelPipeline implements ChannelPipeline {
     final DefaultChannelHandlerContext head;
     final DefaultChannelHandlerContext tail;
 
-    private final Map<String, DefaultChannelHandlerContext> name2ctx =
-        new HashMap<String, DefaultChannelHandlerContext>(4);
+    private final Map<String, DefaultChannelHandlerContext> name2ctx = new HashMap<String, DefaultChannelHandlerContext>(4);
 
-    final Map<EventExecutorGroup, EventExecutor> childExecutors =
-            new IdentityHashMap<EventExecutorGroup, EventExecutor>();
+    final Map<EventExecutorGroup, EventExecutor> childExecutors = new IdentityHashMap<EventExecutorGroup, EventExecutor>();
 
     public DefaultChannelPipeline(Channel channel) {
         if (channel == null) {

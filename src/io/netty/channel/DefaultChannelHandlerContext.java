@@ -71,13 +71,9 @@ final class DefaultChannelHandlerContext extends DefaultAttributeMap implements 
     //
     // Note we use an AtomicReferenceFieldUpdater for atomic operations on these to save memory. This will save us
     // 64 bytes per Bridge.
-    @SuppressWarnings("UnusedDeclaration")
     private volatile Queue<Object> inBridge;
-    @SuppressWarnings("UnusedDeclaration")
     private volatile Queue<Object> outBridge;
-    @SuppressWarnings("UnusedDeclaration")
     private volatile NextBridgeFeeder nextInBridgeFeeder;
-    @SuppressWarnings("UnusedDeclaration")
     private volatile NextBridgeFeeder nextOutBridgeFeeder;
 
     @SuppressWarnings("rawtypes")

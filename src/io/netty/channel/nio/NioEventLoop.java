@@ -426,6 +426,7 @@ public final class NioEventLoop extends SingleThreadEventLoop {
         try {
             readyOps = k.readyOps();
             if ((readyOps & (SelectionKey.OP_READ | SelectionKey.OP_ACCEPT)) != 0 || readyOps == 0) {
+            	System.out.println("OP_READ|OP_ACCEPT");
                 unsafe.read();
                 if (!ch.isOpen()) {
                     // Connection already closed - no need to handle write.
@@ -433,9 +434,11 @@ public final class NioEventLoop extends SingleThreadEventLoop {
                 }
             }
             if ((readyOps & SelectionKey.OP_WRITE) != 0) {
+            	System.out.println("SelectionKey.OP_WRITE");
                 processWritable(ch);
             }
             if ((readyOps & SelectionKey.OP_CONNECT) != 0) {
+            	System.out.println("SelectionKey.OP_CONNECT");
                 // remove OP_CONNECT as otherwise Selector.select(..) will always return without blocking
                 // See https://github.com/netty/netty/issues/924
                 int ops = k.interestOps();

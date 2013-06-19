@@ -1,4 +1,4 @@
-package com.dmycqq.test.future;
+package com.dmycqq.test.java.concurrent.future;
 
 public class RealData implements Data {  
     private final String content;  
