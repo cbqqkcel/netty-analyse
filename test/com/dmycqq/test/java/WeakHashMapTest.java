@@ -1,7 +1,6 @@
 package com.dmycqq.test.java;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.WeakHashMap;
 
@@ -20,31 +19,48 @@ public class WeakHashMapTest {
 	public static void main(String[] args) throws Exception {
 		String a = new String("a");
 		String b = new String("b");
-		Map weakmap = new WeakHashMap();
-		Map map = new HashMap();
+		Map<String, String> map = new HashMap<String, String>();
 		map.put(a, "aaa");
 		map.put(b, "bbb");
+		map.remove(a);
 
+		Map<String, String> weakmap = new WeakHashMap<String, String>();
 		weakmap.put(a, "aaa");
 		weakmap.put(b, "bbb");
-
-		map.remove(a);
 
 		a = null;
 		b = null;
 
 		System.gc();
-		Iterator i = map.entrySet().iterator();
-		while (i.hasNext()) {
-			Map.Entry en = (Map.Entry) i.next();
-			System.out.println("map:" + en.getKey() + ":" + en.getValue());
+		
+		for (String key : map.keySet()) {
+			System.out.println("map:" + key + ":" + map.get(key));
 		}
 
-		Iterator j = weakmap.entrySet().iterator();
-		while (j.hasNext()) {
-			Map.Entry en = (Map.Entry) j.next();
-			System.out.println("weakmap:" + en.getKey() + ":" + en.getValue());
+		for (String key : weakmap.keySet()) {
+			System.out.println("weakmap:" + key + ":" + weakmap.get(key));
+		}
+		
+		
+		/*
+		 * 测试Class对象被收回的场景
+		 * 自定义一个ClassLoader从C盘中加载一个空的Test.class，目前写死的。  
+		 * 然后会看到当classLoader为空时weak会被收回;
+		 * 使用系统的ClassLoader目前还不知道什么时候会被回收。
+		 */
+		WeakHashMap<Object, Object> weak = new WeakHashMap<Object, Object>();
+		CustomizedClassLoader classLoader = new CustomizedClassLoader();
+		Class<?> findClass = classLoader.findClass(null);
+		/*
+		 * 2个都要设置null确保没有引用时才会被回收
+		 */
+		classLoader = null;
+		findClass = null;
+		
+		System.gc();
 
+		for (String key : map.keySet()) {
+			System.out.println("map:" + key + ":" + weak.get(key));
 		}
 	}
 
