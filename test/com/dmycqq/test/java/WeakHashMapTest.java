@@ -51,12 +51,16 @@ public class WeakHashMapTest {
 		WeakHashMap<Object, Object> weak = new WeakHashMap<Object, Object>();
 		CustomizedClassLoader classLoader = new CustomizedClassLoader();
 		Class<?> findClass = classLoader.findClass(null);
-		/*
-		 * 2个都要设置null确保没有引用时才会被回收
-		 */
+		weak.put(findClass, "Test");
+		
+		Object newInstance = findClass.newInstance();
+		ClassLoader classLoader2 = newInstance.getClass().getClassLoader();
+		System.out.println(classLoader == classLoader2);
+
 		classLoader = null;
 		findClass = null;
-		
+		newInstance = null;
+		classLoader2 = null;
 		System.gc();
 
 		for (String key : map.keySet()) {
