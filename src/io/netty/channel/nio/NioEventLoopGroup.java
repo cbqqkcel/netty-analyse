@@ -56,7 +56,8 @@ public class NioEventLoopGroup extends MultithreadEventLoopGroup {
      * Create a new instance using nThreads number of threads, the given {@link ThreadFactory} and the given
      * {@link SelectorProvider}.
      */
-    public NioEventLoopGroup(int nThreads, ThreadFactory threadFactory, final SelectorProvider selectorProvider) {
+    public NioEventLoopGroup(
+            int nThreads, ThreadFactory threadFactory, final SelectorProvider selectorProvider) {
         super(nThreads, threadFactory, selectorProvider);
     }
 
@@ -81,7 +82,8 @@ public class NioEventLoopGroup extends MultithreadEventLoopGroup {
     }
 
     @Override
-    protected EventExecutor newChild(ThreadFactory threadFactory, Object... args) throws Exception {
+    protected EventExecutor newChild(
+            ThreadFactory threadFactory, Object... args) throws Exception {
         return new NioEventLoop(this, threadFactory, (SelectorProvider) args[0]);
     }
 }

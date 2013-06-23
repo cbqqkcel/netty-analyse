@@ -50,7 +50,7 @@ abstract class AbstractBootstrap<B extends AbstractBootstrap<B, C>, C extends Ch
 
     AbstractBootstrap() {
         // Disallow extending from a different package.
-    } 
+    }
 
     AbstractBootstrap(AbstractBootstrap<B, C> bootstrap) {
         group = bootstrap.group;
@@ -364,7 +364,10 @@ abstract class AbstractBootstrap<B extends AbstractBootstrap<B, C>, C extends Ch
         return handler;
     }
 
-    final EventLoopGroup group() {
+    /**
+     * Return the configured {@link EventLoopGroup} or {@code null} if non is configured yet.
+     */
+    public final EventLoopGroup group() {
         return group;
     }
 

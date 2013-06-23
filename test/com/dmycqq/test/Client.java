@@ -19,6 +19,13 @@ import java.net.SocketAddress;
 public class Client extends ChannelInboundByteHandlerAdapter {
 	private static SocketAddress socketAddress = new InetSocketAddress(8080);
 	private final ByteBuf buf = Unpooled.wrappedBuffer("Hello".getBytes());
+	private static ClientChannelInitializer clientChannelInitializer = new ClientChannelInitializer();
+	
+	static class ClientChannelInitializer extends ChannelInitializer<SocketChannel> {
+		protected void initChannel(SocketChannel ch) throws Exception {
+			ch.pipeline().addLast(new Client());
+		}
+	}
 
 	public static void main(String[] args) throws Exception {
 		EventLoopGroup g = new NioEventLoopGroup(1);
@@ -26,11 +33,7 @@ public class Client extends ChannelInboundByteHandlerAdapter {
 		b.group(g);
 		b.channel(NioSocketChannel.class);
 		b.option(ChannelOption.TCP_NODELAY, true);
-		b.handler(new ChannelInitializer<SocketChannel>() {
-			protected void initChannel(SocketChannel ch) throws Exception {
-				ch.pipeline().addLast(new Client());
-			}
-		});
+		b.handler(clientChannelInitializer);
 		ChannelFuture f = b.connect(socketAddress).sync();
 		f.channel().closeFuture().sync();
 		g.shutdownGracefully();
@@ -38,12 +41,12 @@ public class Client extends ChannelInboundByteHandlerAdapter {
 	
 	@Override
 	public void channelRegistered(ChannelHandlerContext ctx) throws Exception {
-		System.out.println(ctx);
+		System.out.println(ctx.name());
 	}
 
 	@Override
 	public void channelActive(ChannelHandlerContext ctx) {
-		System.out.println(ctx);
+		System.out.println(ctx.name());
 		ctx.write(buf);
 	}
 
